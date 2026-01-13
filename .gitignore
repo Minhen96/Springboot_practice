@@ -32,4 +32,11 @@ build/
 ### VS Code ###
 .vscode/
 
-.reference/
+### Reference ###
+reference/
+
+### Env ###
+.env
+
+### Logs ###
+logs/
