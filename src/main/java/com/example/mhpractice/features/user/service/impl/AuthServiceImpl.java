@@ -30,13 +30,14 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
-    public void register(String email, String password) {
+    public void register(String email, String name, String password) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new BusinessException(ErrorCode.USER_ALREADY_EXISTS);
         }
 
         User user = User.builder()
                 .email(email)
+                .name(name)
                 .password(passwordEncoder.encode(password))
                 .build();
 

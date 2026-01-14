@@ -30,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public void register(@Valid @RequestBody RegisterRequest request) {
-        authService.register(request.getEmail(), request.getPassword());
+        authService.register(request.getEmail(), request.getName(), request.getPassword());
     }
 
     @PostMapping("/login")

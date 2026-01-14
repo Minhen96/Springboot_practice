@@ -55,11 +55,12 @@ public class AuthServiceImplTest {
     void success_register_new_email() {
         String email = "test@example.com";
         String password = "password";
+        String name = "test";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
         when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
 
-        authService.register(email, password);
+        authService.register(email, name, password);
 
         verify(userRepository).save(argThat(user -> {
             return user.getEmail().equals(email) && user.getPassword().equals("encodedPassword");
@@ -70,6 +71,7 @@ public class AuthServiceImplTest {
     void fail_register_existing_email() {
         String email = "test@example.com";
         String password = "password";
+        String name = "test";
 
         User existingUser = User.builder()
                 .email(email)
@@ -78,7 +80,7 @@ public class AuthServiceImplTest {
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(existingUser));
 
-        assertThrows(BusinessException.class, () -> authService.register(email, password));
+        assertThrows(BusinessException.class, () -> authService.register(email, name, password));
         verify(userRepository, never()).save(any(User.class));
     }
 
