@@ -9,10 +9,12 @@ spring:
   thread:
     virtual:
       enabled: true
-
   jpa:
     hibernate:
       ddl-auto: update
+  logging:
+    level:
+      root: INFO
 
 app:
   jwt:

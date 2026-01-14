@@ -3,6 +3,7 @@ package com.example.mhpractice.features.user.controller;
 import com.example.mhpractice.features.user.service.AuthService;
 import com.example.mhpractice.features.user.service.result.LoginResult;
 import com.example.mhpractice.features.user.controller.request.RegisterRequest;
+import com.example.mhpractice.common.http.annotation.StandardReponseBody;
 import com.example.mhpractice.features.user.controller.request.LoginRequest;
 import com.example.mhpractice.features.user.controller.request.RefreshTokenRequest;
 import com.example.mhpractice.features.user.controller.response.LoginResponse;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@StandardReponseBody
 public class AuthController {
 
     private final AuthService authService;

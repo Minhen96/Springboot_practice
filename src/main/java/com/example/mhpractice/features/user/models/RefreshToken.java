@@ -15,7 +15,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "refresh_tokens")
@@ -28,10 +30,13 @@ public class RefreshToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(unique = true, nullable = false, length = 1000) // JWT tokens are long, especially encrypted
     private String token;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @ToString.Exclude // ✅ Fix circular reference
+    @EqualsAndHashCode.Exclude // ✅ Also good practice
     private User user;
 
     @Column(nullable = false)

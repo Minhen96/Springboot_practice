@@ -39,6 +39,7 @@ public class AuthServiceImpl implements AuthService {
                 .email(email)
                 .name(name)
                 .password(passwordEncoder.encode(password))
+                .status(User.Status.ACTIVE)
                 .build();
 
         userRepository.save(user);

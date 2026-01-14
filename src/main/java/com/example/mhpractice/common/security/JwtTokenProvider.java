@@ -93,7 +93,7 @@ public class JwtTokenProvider {
             SignedJWT draftJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claims);
 
             // Sign JWT (now it is in header.claim.signature)
-            draftJWT.sign(new MACSigner(base64Secret));
+            draftJWT.sign(new MACSigner(secretKeyBytes));
 
             // Serialize JWT (compact form)
             String compactJwtToken = draftJWT.serialize();
@@ -111,21 +111,27 @@ public class JwtTokenProvider {
 
             // Decrypt the unreadable jwt token
             String compactToken = encryptService.decryptUrlSafe(encodedToken, encryptionKey);
+            log.debug("Decrypted token successfully");
 
             // Parse the compact jwt token
             SignedJWT parsedJwt = SignedJWT.parse(compactToken);
+            log.debug("Parsed JWT successfully");
 
             // Verify the signature
             JWSVerifier verifier = new MACVerifier(secretKeyBytes);
             if (!parsedJwt.verify(verifier)) {
+                log.debug("Signature verification failed");
                 return false;
             }
+            log.debug("Signature verified");
 
             // Check expiration
             Date expiration = parsedJwt.getJWTClaimsSet().getExpirationTime();
             if (expiration != null && expiration.before(new Date())) {
+                log.debug("Token expired. Expiration: {}, Now: {}", expiration, new Date());
                 return false;
             }
+            log.debug("Token not expired");
 
             // Check token type (ACCESS vs REFRESH)
             // String realTokenType = parsedJwt.getJWTClaimsSet().getStringClaim("type");
@@ -138,6 +144,7 @@ public class JwtTokenProvider {
             return true;
 
         } catch (Exception e) {
+            log.debug("Token validation exception: {}", e.getMessage());
             return false;
         }
     }
