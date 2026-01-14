@@ -45,7 +45,7 @@ public class VerificationToken {
 
     @Column(name = "max_attempts", nullable = false)
     @Builder.Default
-    private int maxAttempts = 3;
+    private int maxAttempts = 5;
 
     @Column(name = "is_used", nullable = false)
     @Builder.Default

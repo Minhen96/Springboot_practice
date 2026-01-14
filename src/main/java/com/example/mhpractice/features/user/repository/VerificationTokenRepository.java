@@ -1,5 +1,6 @@
 package com.example.mhpractice.features.user.repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,4 +12,6 @@ import com.example.mhpractice.features.user.models.VerificationToken;
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, UUID> {
 
     Optional<VerificationToken> findByUserAndPurpose(User user, VerificationToken.OtpPurposes purpose);
+
+    void deleteAllByExpiresAtBefore(LocalDateTime dateTime);
 }
