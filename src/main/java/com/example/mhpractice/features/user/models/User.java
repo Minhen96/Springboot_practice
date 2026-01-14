@@ -45,6 +45,9 @@ public class User {
     @Column(name = "status", nullable = false)
     private Status status;
 
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

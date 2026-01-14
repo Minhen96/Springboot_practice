@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendWelcomeEmail(String to, String userName) {
+    public void sendWelcomeEmail(String to) {
         try {
             // Create a mime message
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -80,12 +80,40 @@ public class NotificationServiceImpl implements NotificationService {
 
             // Set the context for the thymeleaf template
             Context context = new Context();
-            context.setVariable("userName", userName);
+            // context.setVariable("userName", userName);
 
             // Process template into HTML string
             String htmlContent = templateEngine.process("email/welcome-email", context);
 
             // Set the body (the 2nd param true, mean is html)
+            helper.setText(htmlContent, true);
+
+            // Send the email
+            javaMailSender.send(mimeMessage);
+
+        } catch (Exception e) {
+            throw new BusinessException(ErrorCode.EMAIL_SERVER_ERROR, "Failed to send email");
+        }
+    }
+
+    @Override
+    public void sendOtpEmail(String to, String otpCode) {
+        try {
+            // Create a mime message
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+            // Create Helper (2nd param: multipart support, 3rd: encoding)
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            // Set the from, to, and subject
+            helper.setFrom(fromAddress);
+            helper.setTo(to);
+            helper.setSubject("Mini Tng OTP Verification");
+
+            // Set the body (the 2nd param true, mean is html)
+            Context context = new Context();
+            context.setVariable("otpCode", otpCode);
+            String htmlContent = templateEngine.process("email/verification-email-otp", context);
             helper.setText(htmlContent, true);
 
             // Send the email

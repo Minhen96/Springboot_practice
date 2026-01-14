@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <h1>Verify Your Email</h1>
+    <p>Hello <span th:text="${userName}">User</span>,</p>
+    <p>Your verification code is:</p>
+    <h2 style="background-color: #f0f0f0; padding: 20px; letter-spacing: 5px; font-size: 32px;">
+        <span th:text="${otpCode}">123456</span>
+    </h2>
+    <p>This code will expire in <b>10 minutes</b>.</p>
+    <p>If you didn't request this, please ignore this email.</p>
+    <p>Thank you,<br />Mini TNG Team</p>
+</body>
+
+</html>

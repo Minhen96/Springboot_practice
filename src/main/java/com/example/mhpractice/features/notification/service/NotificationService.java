@@ -8,7 +8,9 @@ import com.example.mhpractice.features.notification.service.request.SendMailRequ
 public interface NotificationService {
     public void sendTextEmail(SendMailRequest sendMailRequest);
 
-    public void sendWelcomeEmail(String to, String userName);
+    public void sendWelcomeEmail(String to);
+
+    public void sendOtpEmail(String to, String otpCode);
 
     public void sendTransactionSuccessEmail(String userEmail, String transactionId, BigDecimal amount);
 
