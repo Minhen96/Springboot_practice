@@ -15,8 +15,8 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime
-# use openjdk:21-jdk-slim as base image, it is smaller than the build image
-FROM openjdk:21-jdk-slim
+# use openjdk:25-jdk-slim as base image, it is smaller than the build image
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 # copy the jar file from build stage to runtime stage, as app.jar
 COPY --from=build /app/target/*.jar app.jar
