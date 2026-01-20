@@ -93,17 +93,23 @@ cd mhpractice
 ```
 
 ### 2. Start Services
-```bash
-# Start Databases, Kafka, Zookeeper, MailHog, Prometheus, Grafana
-docker-compose up -d
 
-# With pgAdmin (optional)
-docker-compose --profile dev up -d
+**Option A: Development Mode (Hybrid)**
+Runs infrastructure in Docker, Backend runs locally (Faster for coding).
+```bash
+docker-compose up -d
 ```
 
-### 3. Run the Application
+Run the Application
 ```bash
 mvn spring-boot:run
+```
+
+**Option B: Full Docker Mode (Production Simulation)**
+Runs EVERYTHING in Docker containers (Best for final testing).
+*Note: Stop local Maven run to free up port 8088 first!*
+```bash
+docker-compose --profile prod up --build -d
 ```
 
 ### 4. Access Services

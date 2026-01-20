@@ -22,14 +22,14 @@ spring:
       root: INFO
 
   datasource:
-    url: jdbc:postgresql://localhost:5435/mhpractice
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
       
   mail:
-    host: localhost
-    port: 1025
+    host: ${SPRING_MAIL_HOST:localhost}
+    port: ${SPRING_MAIL_PORT:1025}
     properties:
       mail:
         smtp:
@@ -38,10 +38,10 @@ spring:
             enabled: false
 app:
   jwt:
-    secret: secretKey
-    encryption-key: encryptionKey
-    expiration-ms: ms
-    refresh-expiration-ms: ms
+    secret: ${JWT_SECRET}
+    encryption-key: ${JWT_ENCRYPTION_KEY}
+    expiration-ms: 900000
+    refresh-expiration-ms: 604800000
 
   cookie: 
     secure: true

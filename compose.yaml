@@ -13,6 +13,28 @@ services:
   #     - dependency_service
   #   restart: unless-stopped
 
+  backend:
+    build: .
+    container_name: mhpractice-backend
+    ports:
+      - "8088:8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/mhpractice
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_MAIL_HOST=mailhog
+      - SPRING_MAIL_PORT=1025
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    profiles:
+      - prod
+    restart: unless-stopped
+
   postgres:
     image: postgres:latest
     container_name: mhpractice-postgres
