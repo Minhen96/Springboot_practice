@@ -1,5 +1,6 @@
 package com.example.mhpractice.features.wallet.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,5 +20,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, UUID> 
             "FROM Transaction t WHERE t.transactionId = :transactionId " +
             "AND t.creditStatus = 'SUCCESS'")
     boolean isCreditCompleted(@Param("transactionId") String transactionId);
+
+    @Query("SELECT t FROM Transaction t WHERE t.fromWallet.id = :walletId OR t.toWallet.id = :walletId ORDER BY t.createdAt DESC")
+    List<Transaction> findAllByWalletId(@Param("walletId") UUID walletId);
 
 }

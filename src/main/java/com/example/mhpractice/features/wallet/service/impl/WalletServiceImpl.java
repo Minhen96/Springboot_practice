@@ -52,6 +52,43 @@ public class WalletServiceImpl implements WalletService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
     }
 
+    @Override
+    @Transactional
+    public void topUp(UUID walletId, BigDecimal amount, String transactionId) {
+        RLock lock = redissonClient.getLock("wallet:" + walletId);
+        try {
+            lock.lock(10, TimeUnit.SECONDS);
+
+            if (transactionRepository.existsByTransactionId(transactionId)) {
+                return;
+            }
+
+            Wallet wallet = walletRepository.findByIdWithLock(walletId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.WALLET_NOT_FOUND));
+
+            wallet.addBalance(amount);
+            walletRepository.save(wallet);
+
+            Transaction record = Transaction.builder()
+                    .transactionId(transactionId)
+                    .fromWallet(null)
+                    .toWallet(wallet)
+                    .amount(amount)
+                    .status(TransferStatus.SUCCESS)
+                    .creditStatus(CreditStatus.SUCCESS)
+                    .build();
+
+            transactionRepository.save(record);
+
+            auditService.logTopUp(record);
+
+        } finally {
+            if (lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+
     // ========================================
     // STEP 1: Debit/Withdraw (transferFrom)
     // ========================================

@@ -6,14 +6,18 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.mhpractice.common.http.annotation.StandardReponseBody;
 import com.example.mhpractice.features.user.models.User;
 import com.example.mhpractice.features.user.service.UserService;
+import com.example.mhpractice.features.wallet.controller.request.TopupRequest;
 import com.example.mhpractice.features.wallet.controller.request.TransferRequest;
+import com.example.mhpractice.features.wallet.controller.response.BalanceResponse;
 import com.example.mhpractice.features.wallet.event.TransferRequestEvent;
 import com.example.mhpractice.features.wallet.model.Wallet;
 import com.example.mhpractice.features.wallet.service.WalletService;
@@ -29,6 +33,26 @@ public class WalletController {
     private final WalletService walletService;
     private final UserService userService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    @StandardReponseBody
+    @GetMapping("/balance")
+    public BalanceResponse getBalance(Authentication authentication) {
+        String currentEmail = authentication.getName();
+        User currentUser = userService.getUserByEmail(currentEmail);
+        Wallet currentUserWallet = walletService.getWalletByUserId(currentUser.getId());
+        return BalanceResponse.builder()
+                .balance(currentUserWallet.getBalance())
+                .build();
+    }
+
+    @PostMapping("/topup")
+    public boolean topUp(Authentication authentication, @Valid @RequestBody TopupRequest request) {
+        User currentUser = userService.getUserByEmail(authentication.getName());
+        Wallet currentUserWallet = walletService.getWalletByUserId(currentUser.getId());
+        String transactionId = UUID.randomUUID().toString();
+        walletService.topUp(currentUserWallet.getId(), request.getAmount(), transactionId);
+        return true;
+    }
 
     @PostMapping("/transfer")
     public ResponseEntity<Map<String, String>> transfer(@Valid @RequestBody TransferRequest request,

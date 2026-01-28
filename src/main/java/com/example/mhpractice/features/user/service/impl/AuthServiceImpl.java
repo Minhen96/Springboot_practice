@@ -10,6 +10,8 @@ import com.example.mhpractice.features.user.service.AuthService;
 import com.example.mhpractice.features.user.service.result.LoginResult;
 import com.example.mhpractice.common.security.JwtTokenProvider;
 
+import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -126,10 +128,11 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void logout(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-        refreshTokenRepository.deleteByUser_Id(user);
+        refreshTokenRepository.deleteByUser(user);
     }
 
 }

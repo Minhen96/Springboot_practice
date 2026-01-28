@@ -14,7 +14,8 @@ import jakarta.persistence.LockModeType;
 
 public interface WalletRepository extends JpaRepository<Wallet, UUID> {
 
-    Optional<Wallet> findByUserId(UUID userId);
+    @Query("SELECT w FROM Wallet w WHERE w.user.id = :userId")
+    Optional<Wallet> findByUserId(@Param("userId") UUID userId);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT w FROM Wallet w WHERE w.id = :walletId")

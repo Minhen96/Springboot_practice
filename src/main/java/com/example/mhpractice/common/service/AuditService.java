@@ -33,6 +33,27 @@ public class AuditService {
     private final AuditLogRepository auditLogRepository;
     private final ObjectMapper objectMapper;
 
+    public void logTopUp(Transaction txn) {
+        try {
+            AuditLog auditLog = AuditLog.builder()
+                    .action("TOP_UP")
+                    .transactionId(txn.getTransactionId())
+                    .toWallet(txn.getToWallet())
+                    .amount(txn.getAmount())
+                    .status(txn.getStatus().toString())
+                    .severity("LOW")
+                    .description(String.format("User top up of %s", txn.getAmount()))
+                    .metadata(toJson(txn))
+                    .build();
+
+            auditLogRepository.save(auditLog);
+            log.info("Audit: TOP_UP - txn={}", txn.getTransactionId());
+
+        } catch (Exception e) {
+            log.error("Failed to create audit log for top up: {}", txn.getTransactionId(), e);
+        }
+    }
+
     /**
      * Log transfer initiation
      */

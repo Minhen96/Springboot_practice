@@ -12,6 +12,8 @@ public interface WalletService {
 
     public Wallet getWalletByUserId(UUID userId);
 
+    public void topUp(UUID walletId, BigDecimal amount, String transactionId);
+
     public void transferOut(UUID walletId, BigDecimal amount, String transactionId);
 
     public void transferIn(UUID walletId, BigDecimal amount, String transactionId);
