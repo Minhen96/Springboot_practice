@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TransactionDetailsResult {
     private String transactionId;
-    private String fromWalletId;
-    private String toWalletId;
+    private String fromUserId;
+    private String toUserId;
     private BigDecimal amount;
     private String status;
     private String creditStatus;

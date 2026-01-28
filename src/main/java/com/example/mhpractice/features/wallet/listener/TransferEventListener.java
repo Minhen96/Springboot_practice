@@ -8,6 +8,7 @@ import com.example.mhpractice.features.wallet.event.TransferRequestEvent;
 import com.example.mhpractice.features.wallet.model.Transaction;
 import com.example.mhpractice.features.wallet.repository.TransactionRepository;
 import com.example.mhpractice.features.wallet.service.TransferOrchestrator;
+import com.example.mhpractice.features.notification.service.SseService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class TransferEventListener {
     private final TransactionRepository transactionRepository;
     // private final SlackService slackService; // can implement alert to slack app
     private final AuditService auditService;
+    private final SseService sseService;
 
     @KafkaListener(topics = "transfer.events.request", groupId = "wallet-service-group")
     public void handleTransferRequest(TransferRequestEvent event) {
@@ -35,8 +37,13 @@ public class TransferEventListener {
         Transaction txn = transactionRepository.findByTransactionId(transactionId).orElse(null);
         if (txn != null) {
             auditService.logTransferSuccess(txn);
+
+            // Notify Sender
+            if (txn.getFromWallet() != null && txn.getFromWallet().getUser() != null) {
+                String userId = txn.getFromWallet().getUser().getId().toString();
+                sseService.send(userId, "TRANSFER_SUCCESS", "Transfer " + transactionId + " successful!");
+            }
         }
-        // TODO: Broadcast via SSE to frontend
     }
 
     @KafkaListener(topics = "transfer.events.failed", groupId = "notification-group")
@@ -45,10 +52,16 @@ public class TransferEventListener {
         Transaction txn = transactionRepository.findByTransactionId(transactionId).orElse(null);
         if (txn != null) {
             auditService.logTransferFailed(txn.getTransactionId(), txn.getCancelReason());
+
+            // Notify Sender
+            if (txn.getFromWallet() != null && txn.getFromWallet().getUser() != null) {
+                String userId = txn.getFromWallet().getUser().getId().toString();
+                sseService.send(userId, "TRANSFER_FAILED",
+                        "Transfer " + transactionId + " failed: " + txn.getCancelReason());
+            }
         } else {
             auditService.logTransferFailed(transactionId, "Unknown reason");
         }
-        // TODO: Broadcast via SSE to frontend
     }
 
     @KafkaListener(topics = "transfer.events.rollback", groupId = "notification-group")

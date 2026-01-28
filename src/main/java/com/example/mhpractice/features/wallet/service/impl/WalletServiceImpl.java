@@ -126,6 +126,7 @@ public class WalletServiceImpl implements WalletService {
             Transaction record = Transaction.builder()
                     .transactionId(transactionId)
                     .fromWallet(wallet)
+                    .fromUserMail(wallet.getUser().getEmail())
                     .amount(amount)
                     .creditStatus(CreditStatus.PENDING)
                     .status(TransferStatus.FROZEN) // Not SUCCESS yet!
@@ -172,6 +173,7 @@ public class WalletServiceImpl implements WalletService {
 
             // 5. Update transaction status
             record.setToWallet(wallet);
+            record.setToUserMail(wallet.getUser().getEmail());
             record.setCreditStatus(CreditStatus.SUCCESS);
             transactionRepository.save(record);
 

@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         return UserProfileResult.builder()
+                .id(user.getId().toString())
                 .email(user.getEmail())
                 .name(user.getName())
                 .build();

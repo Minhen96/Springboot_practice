@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.example.mhpractice.features.user.models.User;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -42,10 +44,16 @@ public class Transaction {
     @com.fasterxml.jackson.annotation.JsonIgnore // Prevent infinite loop
     private Wallet fromWallet;
 
+    @Column(name = "from_user_mail")
+    private String fromUserMail;
+
     @ManyToOne
     @JoinColumn(name = "to_wallet_id")
     @com.fasterxml.jackson.annotation.JsonIgnore // Prevent infinite loop
     private Wallet toWallet;
+
+    @Column(name = "to_user_mail")
+    private String toUserMail;
 
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;

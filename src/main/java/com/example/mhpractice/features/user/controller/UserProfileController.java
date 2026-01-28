@@ -28,6 +28,7 @@ public class UserProfileController {
     public UserProfileResponse getUserProfile(Authentication authentication) {
         UserProfileResult userProfileResult = userService.getUserProfile(authentication.getName());
         return UserProfileResponse.builder()
+                .id(userProfileResult.getId())
                 .email(userProfileResult.getEmail())
                 .name(userProfileResult.getName())
                 .build();

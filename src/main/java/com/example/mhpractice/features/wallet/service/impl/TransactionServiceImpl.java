@@ -24,13 +24,12 @@ public class TransactionServiceImpl implements TransactionService {
                 return transactionRepository.findAllByWalletId(UUID.fromString(walletId)).stream()
                                 .map(transaction -> TransactionDetailsResult.builder()
                                                 .transactionId(transaction.getTransactionId())
-                                                .fromWalletId(
-                                                                transaction.getFromWallet() != null
-                                                                                ? transaction.getFromWallet().getId()
-                                                                                                .toString()
+                                                .fromUserId(
+                                                                transaction.getFromUserMail() != null
+                                                                                ? transaction.getFromUserMail()
                                                                                 : "SYSTEM")
-                                                .toWalletId(transaction.getToWallet() != null
-                                                                ? transaction.getToWallet().getId().toString()
+                                                .toUserId(transaction.getToUserMail() != null
+                                                                ? transaction.getToUserMail()
                                                                 : "SYSTEM")
                                                 .amount(transaction.getAmount())
                                                 .status(transaction.getStatus().name())
@@ -46,13 +45,12 @@ public class TransactionServiceImpl implements TransactionService {
                 return transactionRepository.findByTransactionId(transactionId)
                                 .map(transaction -> TransactionDetailsResult.builder()
                                                 .transactionId(transaction.getTransactionId())
-                                                .fromWalletId(
-                                                                transaction.getFromWallet() != null
-                                                                                ? transaction.getFromWallet().getId()
-                                                                                                .toString()
+                                                .fromUserId(
+                                                                transaction.getFromUserMail() != null
+                                                                                ? transaction.getFromUserMail()
                                                                                 : "SYSTEM")
-                                                .toWalletId(transaction.getToWallet() != null
-                                                                ? transaction.getToWallet().getId().toString()
+                                                .toUserId(transaction.getToUserMail() != null
+                                                                ? transaction.getToUserMail()
                                                                 : "SYSTEM")
                                                 .amount(transaction.getAmount())
                                                 .status(transaction.getStatus().name())
