@@ -41,7 +41,8 @@ public class TransferEventListener {
             // Notify Sender
             if (txn.getFromWallet() != null && txn.getFromWallet().getUser() != null) {
                 String userId = txn.getFromWallet().getUser().getId().toString();
-                sseService.send(userId, "TRANSFER_SUCCESS", "Transfer " + transactionId + " successful!");
+                sseService.send(userId, "TRANSFER_SUCCESS",
+                        "Transfer to " + txn.getToWallet().getUser().getName() + " successful!");
             }
         }
     }

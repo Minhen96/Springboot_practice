@@ -103,7 +103,8 @@ public class WalletServiceImpl implements WalletService {
             lock.lock(10, TimeUnit.SECONDS);
 
             // 2. Check idempotency (prevent duplicate debit)
-            if (transactionRepository.existsByTransactionId(transactionId)) {
+            if (transactionRepository.existsByTransactionId(transactionId) && transactionRepository
+                    .findByTransactionId(transactionId).get().getStatus() != TransferStatus.PENDING) {
                 // return
                 // transactionRepository.findByTransactionId(transactionId).orElseThrow();
                 return;
@@ -122,15 +123,32 @@ public class WalletServiceImpl implements WalletService {
             wallet.setFrozenBalance(wallet.getFrozenBalance().add(amount));
             walletRepository.save(wallet);
 
-            // 6. Create transaction record
-            Transaction record = Transaction.builder()
-                    .transactionId(transactionId)
-                    .fromWallet(wallet)
-                    .fromUserMail(wallet.getUser().getEmail())
-                    .amount(amount)
-                    .creditStatus(CreditStatus.PENDING)
-                    .status(TransferStatus.FROZEN) // Not SUCCESS yet!
-                    .build();
+            // 6. Create or Update transaction record
+            Transaction record;
+            var existingTxn = transactionRepository.findByTransactionId(transactionId);
+
+            if (existingTxn.isPresent()) {
+                record = existingTxn.get();
+                // Check consistency
+                if (record.getStatus() != TransferStatus.PENDING) {
+                    // Should have been caught by idempotency check, but safe guard
+                    throw new BusinessException(ErrorCode.TRANSACTION_INTERNAL_ERROR);
+                }
+                record.setStatus(TransferStatus.FROZEN);
+                record.setCreditStatus(CreditStatus.PENDING);
+                record.setFromUserMail(wallet.getUser().getEmail()); // Ensure mail is set
+            } else {
+                // Fallback: If for some reason init didn't happen (legacy flow?), create it
+                record = Transaction.builder()
+                        .transactionId(transactionId)
+                        .fromWallet(wallet)
+                        .fromUserMail(wallet.getUser().getEmail())
+                        .amount(amount)
+                        .creditStatus(CreditStatus.PENDING)
+                        .status(TransferStatus.FROZEN) // Not SUCCESS yet!
+                        .build();
+            }
+
             transactionRepository.save(record);
 
             auditService.logBalanceFrozen(record);

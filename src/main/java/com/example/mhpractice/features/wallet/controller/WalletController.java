@@ -1,8 +1,10 @@
 package com.example.mhpractice.features.wallet.controller;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
+import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,10 @@ import com.example.mhpractice.features.wallet.controller.request.TopupRequest;
 import com.example.mhpractice.features.wallet.controller.request.TransferRequest;
 import com.example.mhpractice.features.wallet.controller.response.BalanceResponse;
 import com.example.mhpractice.features.wallet.event.TransferRequestEvent;
+import com.example.mhpractice.features.wallet.model.Transaction;
 import com.example.mhpractice.features.wallet.model.Wallet;
+import com.example.mhpractice.features.wallet.model.Transaction.TransferStatus;
+import com.example.mhpractice.features.wallet.repository.TransactionRepository;
 import com.example.mhpractice.features.wallet.service.WalletService;
 
 import jakarta.validation.Valid;
@@ -32,6 +37,7 @@ public class WalletController {
 
     private final WalletService walletService;
     private final UserService userService;
+    private final TransactionRepository transactionRepository;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @StandardReponseBody
@@ -65,6 +71,7 @@ public class WalletController {
         Wallet toWallet = walletService.getWalletByUserId(targetUser.getId());
 
         String transactionId = UUID.randomUUID().toString();
+        initiateTransfer(fromWallet, toWallet, request.getAmount(), transactionId);
 
         kafkaTemplate.executeInTransaction(operations -> {
             operations.send("transfer.events.request", TransferRequestEvent.of(fromWallet.getId(), toWallet.getId(),
@@ -72,7 +79,21 @@ public class WalletController {
             return null;
         });
 
-        return ResponseEntity.ok(Map.of("message", "Transfer initiated successfully"));
+        return ResponseEntity.ok(Map.of("message", "Transfer initiated successfully", "transactionId", transactionId));
+    }
+
+    private void initiateTransfer(Wallet fromWallet, Wallet toWallet, BigDecimal amount, String transactionId) {
+        Transaction txn = Transaction.builder()
+                .fromWallet(fromWallet)
+                .fromUserMail(fromWallet.getUser().getEmail())
+                .toWallet(toWallet)
+                .toUserMail(toWallet.getUser().getEmail())
+                .amount(amount)
+                .transactionId(transactionId)
+                .status(TransferStatus.PENDING)
+                .creditStatus(com.example.mhpractice.features.wallet.model.Transaction.CreditStatus.PENDING)
+                .build();
+        transactionRepository.save(txn);
     }
 
 }
